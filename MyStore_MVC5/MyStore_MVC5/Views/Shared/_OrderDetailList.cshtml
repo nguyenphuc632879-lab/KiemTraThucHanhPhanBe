@@ -1,0 +1,28 @@
+﻿@model System.Collections.Generic.List<MyStore_MVC5.Models.OrderDetails>
+@* Partial View cho danh sách chi tiết đơn hàng - nhúng vào trang Detail của Order (Admin & Customer) *@
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr style="background:#dff0d8;">
+            <th colspan="2">Sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Đơn giá</th>
+            <th>Thành tiền</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var d in Model)
+        {
+            <tr>
+                <td style="width:120px">
+                    <img src="~/Content/Images/@d.Products.Image" alt="@d.Products.ProductName"
+                         style="max-width:100px; max-height:140px" />
+                </td>
+                <td>@d.Products.ProductName</td>
+                <td>@d.Quantity</td>
+                <td>@string.Format("{0:N0}", d.UnitPrice) đ</td>
+                <td>@string.Format("{0:N0}", d.Quantity * d.UnitPrice) đ</td>
+            </tr>
+        }
+    </tbody>
+</table>

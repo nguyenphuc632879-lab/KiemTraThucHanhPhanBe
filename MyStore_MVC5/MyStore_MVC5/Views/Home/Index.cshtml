@@ -1,0 +1,49 @@
+﻿@model IEnumerable<MyStore_MVC5.Models.Products>
+@{
+    ViewBag.Title = "Trang chủ MyStore";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+    var customers = ViewBag.Customers as List<MyStore_MVC5.Models.Customers>;
+}
+
+<div class="jumbotron" style="padding:25px 30px;">
+    <h2>Demo Module Đơn Hàng — ASP.NET MVC5 (Code-First LocalDB)</h2>
+    <p>Database <code>MyStoreDB_MVC5</code> đã được tự động khởi tạo kèm dữ liệu mẫu.</p>
+    <p>
+        <a href="@Url.Action("Index", "Orders")" class="btn btn-danger btn-lg">1. Trang Admin: Quản lý Đơn hàng</a>
+        <a href="@Url.Action("MyOrder", "MyOrder")" class="btn btn-primary btn-lg">2. Trang Customer: Đơn hàng của tôi</a>
+    </p>
+    @if (customers != null)
+    {
+        <div style="margin-top:15px;">
+            <strong>Chuyển nhanh tài khoản Customer để test:</strong>
+            @foreach (var c in customers)
+            {
+                <a href="@Url.Action("QuickSwitch", "Account", new { id = c.CustomerID })"
+                   class="btn btn-xs @(Session["CustomerID"] != null && (int)Session["CustomerID"] == c.CustomerID ? "btn-success" : "btn-default")">
+                    @c.FullName (@c.Username)
+                </a>
+            }
+        </div>
+    }
+</div>
+
+<h3>Sản phẩm (chỉ hiển thị sản phẩm còn hàng)</h3>
+<div class="row">
+    @foreach (var p in Model)
+    {
+        <div class="col-md-3">
+            <div class="thumbnail text-center" style="padding:15px;">
+                <img src="~/Content/Images/@p.Image" alt="@p.ProductName" style="height:120px;" />
+                <div class="caption">
+                    <h4>@p.ProductName</h4>
+                    <p class="text-danger"><strong>@string.Format("{0:N0}", p.Price) đ</strong></p>
+                    <p class="text-muted">Tồn kho: @p.Quantity</p>
+                    <p>
+                        <a href="@Url.Action("Add", "Cart", new { productId = p.ProductID, quantity = 1 })" class="btn btn-primary btn-sm">Mua hàng</a>
+                        <a href="@Url.Action("Details", "Products", new { id = p.ProductID })" class="btn btn-default btn-sm">Chi tiết</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>

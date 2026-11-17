@@ -1,0 +1,82 @@
+﻿@using System.Collections.Generic
+@using MyStore_MVC5.Models
+@{
+    // Đếm số lượng hàng trong giỏ để hiển thị badge trên icon giỏ hàng
+    var cart = Session["Cart"] as List<CartItem>;
+    int cartCount = cart != null ? cart.Sum(c => c.Quantity) : 0;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - MyStore</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+    <style>
+        /* Badge cho số lượng giỏ hàng */
+        .cart-badge {
+            background-color: #d9534f;
+            color: white;
+            border-radius: 10px;
+            padding: 1px 7px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="@Url.Action("Index", "Home")"><strong>MYSTORE</strong></a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li>@Html.ActionLink("Trang chủ", "Index", "Home")</li>
+                <li>
+                    <a href="@Url.Action("Index", "Cart")">
+                        <span class="glyphicon glyphicon-shopping-cart"></span> Giỏ hàng
+                        @if (cartCount > 0)
+                        {
+                            <span class="cart-badge">@cartCount</span>
+                        }
+                    </a>
+                </li>
+                <li><a href="@Url.Action("Index", "Orders")" style="color:#d9534f;font-weight:bold;">[Vào trang Admin Đơn hàng]</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                @if (Session["CustomerID"] != null)
+                {
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-user"></span> @Session["CustomerName"] <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            @* Đăng nhập thành công: hiển thị link Lịch sử giao dịch (Đơn hàng của tôi) và Hồ sơ khách hàng *@
+                            <li>@Html.ActionLink("Lịch sử mua hàng", "MyOrder", "MyOrder")</li>
+                            <li>@Html.ActionLink("Hồ sơ khách hàng", "MyOrder", "MyOrder")</li>
+                            <li class="divider"></li>
+                            <li>@Html.ActionLink("Đổi tài khoản / Đăng nhập", "Login", "Account")</li>
+                            <li>@Html.ActionLink("Đăng xuất", "Logout", "Account")</li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li>@Html.ActionLink("Đăng nhập", "Login", "Account")</li>
+                    <li>@Html.ActionLink("Đăng ký", "Register", "Account")</li>
+                }
+            </ul>
+        </div>
+    </nav>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer class="text-muted">
+            <p>&copy; @DateTime.Now.Year - MyStore ASP.NET MVC5 (Customer Portal)</p>
+        </footer>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</body>
+</html>

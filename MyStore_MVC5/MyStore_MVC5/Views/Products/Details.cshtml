@@ -1,0 +1,41 @@
+﻿@model MyStore_MVC5.Models.Products
+@{
+    ViewBag.Title = Model.ProductName;
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+}
+
+<div class="row" style="margin-top:20px;">
+    <div class="col-md-4 text-center">
+        <img src="~/Content/Images/@Model.Image" alt="@Model.ProductName" style="max-width:250px;" />
+    </div>
+    <div class="col-md-8">
+        <h2>@Model.ProductName</h2>
+        <p class="text-muted">Danh mục: @(Model.Categories != null ? Model.Categories.CategoryName : "")</p>
+        <h3 class="text-danger">@string.Format("{0:N0}", Model.Price) đ</h3>
+        <p>@Model.Description</p>
+        <p><strong>Số lượng tồn:</strong> @Model.Quantity</p>
+
+        @* Form mua sản phẩm: có truyền số lượng mua sang giỏ hàng *@
+        @using (Html.BeginForm("Add", "Cart", FormMethod.Get, new { @class = "form-inline", style = "margin-bottom:15px;" }))
+        {
+            <input type="hidden" name="productId" value="@Model.ProductID" />
+            <div class="form-group">
+                <label>Số lượng: </label>
+                <input type="number" name="quantity" value="1" min="1" max="@Model.Quantity" class="form-control" style="width:80px; display:inline-block;" />
+            </div>
+            if (Model.Quantity > 0)
+            {
+                <button type="submit" class="btn btn-primary">Mua hàng</button>
+            }
+            else
+            {
+                <span class="label label-danger">Hết hàng</span>
+            }
+        }
+
+        <p>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-default">Tiếp tục mua hàng</a>
+            <a href="@Url.Action("MyOrder", "MyOrder")" class="btn btn-default">Đơn hàng của tôi</a>
+        </p>
+    </div>
+</div>

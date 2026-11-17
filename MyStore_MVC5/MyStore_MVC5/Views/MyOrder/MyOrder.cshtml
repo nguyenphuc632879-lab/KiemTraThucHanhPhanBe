@@ -1,0 +1,102 @@
+﻿@model MyStore_MVC5.Models.MyOrderVM
+@{
+    ViewBag.Title = "Đơn hàng của tôi";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";   // layout Customer
+    string[] tabs = new[] { "all" }.Concat(MyStore_MVC5.Models.OrderStatuses.All).ToArray();
+}
+
+<h3>Đơn hàng của tôi</h3>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-warning">@TempData["Message"]</div>
+}
+
+@* Tabs: Tất cả đơn, Chờ thanh toán, Đang xử lý, Đang vận chuyển, Đã giao, Đã hủy *@
+<ul class="nav nav-tabs nav-justified">
+    @foreach (var t in tabs)
+    {
+        <li class="@(Model.Tab == t ? "active" : "")">
+            <a href="@Url.Action("MyOrder", new { tab = t, keyword = Model.Keyword })">@(t == "all" ? "Tất cả đơn" : t)</a>
+        </li>
+    }
+</ul>
+
+@* Phần Tìm kiếm đơn hàng: theo Mã đơn hàng hoặc Tên sản phẩm *@
+@using (Html.BeginForm("MyOrder", "MyOrder", FormMethod.Get, new { style = "margin:15px 0" }))
+{
+    <input type="hidden" name="tab" value="@Model.Tab" />
+    <div class="input-group">
+        <input type="text" name="keyword" value="@Model.Keyword" class="form-control"
+               placeholder="Tìm đơn hàng theo Mã đơn hàng hoặc Tên sản phẩm" />
+        <span class="input-group-btn"><button class="btn btn-primary" type="submit">Tìm đơn hàng</button></span>
+    </div>
+}
+
+@* Nếu khách hàng chưa có đơn hàng nào thì hiển thị thông báo và link về trang Home *@
+@if (!Model.HasAnyOrder)
+{
+    <div class="text-center" style="padding:40px">
+        <h4>BẠN CHƯA CÓ ĐƠN HÀNG NÀO. HÃY ĐẶT ĐƠN NGAY.</h4>
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Về trang chủ</a>
+    </div>
+}
+else if (!Model.Groups.Any() || Model.Groups.All(g => g.TotalInStatus == 0))
+{
+    @* Có đơn hàng nhưng không tìm thấy kết quả phù hợp với keyword *@
+    <div class="text-center" style="padding:40px">
+        <h4>Không tìm thấy đơn hàng phù hợp.</h4>
+        <a href="@Url.Action("MyOrder", "MyOrder", new { tab = Model.Tab })" class="btn btn-default">Xóa tìm kiếm</a>
+    </div>
+}
+else
+{
+    foreach (var g in Model.Groups)
+    {
+        if (g.TotalInStatus == 0) continue;
+
+        <div class="panel panel-default" style="margin-top:15px;">
+            <div class="panel-heading">
+                <strong>@g.Status</strong>
+                <span class="badge" style="margin-left:5px">@g.TotalInStatus</span>
+            </div>
+            <div class="panel-body">
+                @foreach (var o in g.Orders)
+                {
+                    <div style="border-bottom:1px solid #eee; margin-bottom:15px; padding-bottom:10px">
+                        <p class="text-muted">
+                            Mã đơn: <strong>#@o.OrderID</strong> &mdash; @o.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                            | @Html.ActionLink("Xem hóa đơn chi tiết", "DetailedOrder", "MyOrder", new { id = o.OrderID }, null)
+                        </p>
+                        @foreach (var d in o.OrderDetails)
+                        {
+                            <div class="row" style="margin-bottom:10px">
+                                <div class="col-xs-2 col-md-1">
+                                    <img src="~/Content/Images/@d.Products.Image" style="max-width:70px" />
+                                </div>
+                                <div class="col-xs-7 col-md-9">
+                                    @d.Products.ProductName <span class="text-muted">x@(d.Quantity)</span>
+                                </div>
+                                <div class="col-xs-3 col-md-2 text-right">
+                                    @string.Format("{0:N0}", d.UnitPrice) đ
+                                    <div style="margin-top:5px">
+                                        <a class="btn btn-xs btn-default" href="@Url.Action("Reorder", "MyOrder", new { productId = d.ProductID })">MUA LẠI</a>
+                                        <a class="btn btn-xs btn-default" href="@Url.Action("Details", "Products", new { id = d.ProductID })">XEM CHI TIẾT</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <p class="text-right">Tổng tiền: <strong style="font-size:18px">@string.Format("{0:N0}", o.TotalAmount) đ</strong></p>
+                    </div>
+                }
+
+                @* Nút "Xem thêm": chỉ hiện khi chưa expand và còn nhiều hơn 2 đơn *@
+                @if (!g.Expanded && g.TotalInStatus > g.Orders.Count)
+                {
+                    <a href="@Url.Action("MyOrder", new { tab = Model.Tab, expandStatus = g.Status, keyword = Model.Keyword })"
+                       class="btn btn-default btn-sm">Xem thêm</a>
+                }
+            </div>
+        </div>
+    }
+}

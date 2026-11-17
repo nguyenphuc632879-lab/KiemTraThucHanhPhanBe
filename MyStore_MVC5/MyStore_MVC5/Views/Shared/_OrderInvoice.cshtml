@@ -1,0 +1,71 @@
+﻿@model MyStore_MVC5.Models.Orders
+@* Partial dùng chung cho trang Chi tiết đơn hàng (Admin) và Xem chi tiết (Customer) - hiển thị dạng hóa đơn *@
+
+<div class="panel panel-default" style="margin-top:15px;">
+    <div class="panel-heading" style="background:#dff0d8;">
+        <h4 style="margin:0;"><strong>HÓA ĐƠN MUA HÀNG</strong> &mdash; Mã đơn: #@Model.OrderID</h4>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><strong>THÔNG TIN KHÁCH HÀNG</strong></h5>
+                <table class="table table-borderless">
+                    <tr>
+                        <td style="width:140px;"><strong>Tên khách hàng:</strong></td>
+                        <td>@Model.Customers.FullName</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Địa chỉ giao hàng:</strong></td>
+                        <td>@Model.ShippingAddress</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phương thức giao hàng:</strong></td>
+                        <td>@Model.ShippingMethod</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h5><strong>THÔNG TIN ĐƠN HÀNG</strong></h5>
+                <table class="table table-borderless">
+                    <tr>
+                        <td style="width:160px;"><strong>Mã đơn hàng:</strong></td>
+                        <td><strong>#@Model.OrderID</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Ngày đặt hàng:</strong></td>
+                        <td>@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phương thức thanh toán:</strong></td>
+                        <td>@Model.PaymentMethod</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Trạng thái thanh toán:</strong></td>
+                        <td>@Model.PaymentStatus</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Trạng thái đơn hàng:</strong></td>
+                        <td><span class="label label-info">@Model.OrderStatus</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                @Html.Partial("_OrderDetailList", Model.OrderDetails.ToList())
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-offset-8 col-md-4">
+                <table class="table table-bordered">
+                    <tr>
+                        <td style="width:60%;"><strong>TỔNG TIỀN:</strong></td>
+                        <td class="text-right"><strong style="font-size:18px; color:#d9534f;">@string.Format("{0:N0}", Model.TotalAmount) đ</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

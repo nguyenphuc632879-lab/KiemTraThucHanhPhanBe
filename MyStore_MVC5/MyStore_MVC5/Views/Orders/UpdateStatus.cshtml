@@ -1,0 +1,36 @@
+﻿@model MyStore_MVC5.Models.Orders
+@{
+    ViewBag.Title = "Cập nhật trạng thái đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG #@Model.OrderID</h2>
+
+@using (Html.BeginForm("UpdateStatus", "Orders", new { id = Model.OrderID }, FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="form-group">
+        <label class="control-label col-md-2">Khách hàng</label>
+        <div class="col-md-4"><p class="form-control-static">@Model.Customers.FullName</p></div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-md-2">Trạng thái đơn hàng</label>
+        <div class="col-md-4">
+            @Html.DropDownList("orderStatus", (SelectList)ViewBag.OrderStatuses, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-md-2">Trạng thái thanh toán</label>
+        <div class="col-md-4">
+            @Html.DropDownList("paymentStatus", (SelectList)ViewBag.PaymentStatuses, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-4">
+            <input type="submit" value="Lưu" class="btn btn-primary" />
+            @Html.ActionLink("Quay lại", "DetailedOrder", new { id = Model.OrderID }, new { @class = "btn btn-default" })
+        </div>
+    </div>
+}

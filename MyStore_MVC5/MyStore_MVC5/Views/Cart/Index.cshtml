@@ -1,0 +1,83 @@
+﻿@model List<MyStore_MVC5.Models.CartItem>
+@{
+    ViewBag.Title = "Giỏ hàng";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+}
+
+<h3>Giỏ hàng của bạn</h3>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Giỏ hàng đang trống.
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-sm">Tiếp tục mua hàng</a>
+    </div>
+}
+else
+{
+    <table class="table table-bordered">
+        <tr>
+            <th>Hình</th>
+            <th>Sản phẩm</th>
+            <th>Đơn giá</th>
+            <th>Số lượng</th>
+            <th>Thành tiền</th>
+            <th></th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td style="width:90px"><img src="~/Content/Images/@item.Image" style="max-width:70px" /></td>
+                <td>@item.ProductName</td>
+                <td>@string.Format("{0:N0}", item.Price) đ</td>
+                <td>
+                    @* Nút giảm số lượng (không cho < 1, nếu = 1 thì remove) *@
+                    <a href="@Url.Action("Decrease", "Cart", new { productId = item.ProductID })" class="btn btn-xs btn-default">-</a>
+                    <span style="display:inline-block; min-width:30px; text-align:center;">@item.Quantity</span>
+                    @* Nút tăng số lượng (không cho vượt quá tồn kho) *@
+                    <a href="@Url.Action("Increase", "Cart", new { productId = item.ProductID })" class="btn btn-xs btn-default">+</a>
+                </td>
+                <td>@string.Format("{0:N0}", item.SubTotal) đ</td>
+                <td>
+                    <a href="@Url.Action("Remove", "Cart", new { productId = item.ProductID })" class="btn btn-xs btn-danger">Xóa</a>
+                </td>
+            </tr>
+        }
+        <tr>
+            <td colspan="4" class="text-right"><strong>Tổng cộng:</strong></td>
+            <td colspan="2"><strong class="text-danger">@string.Format("{0:N0}", Model.Sum(x => x.SubTotal)) đ</strong></td>
+        </tr>
+    </table>
+
+    <p>
+        @* Link Tiếp tục mua hàng - luôn hiện *@
+        <a href="@Url.Action("Index", "Home")" class="btn btn-default">Tiếp tục mua hàng</a>
+    </p>
+
+    <hr />
+
+    using (Html.BeginForm("Checkout", "Cart", FormMethod.Post, new { @class = "form-horizontal", style = "max-width:500px;" }))
+    {
+        <h4>Thông tin đặt hàng nhanh</h4>
+        <div class="form-group">
+            <label>Địa chỉ giao hàng</label>
+            <input type="text" name="shippingAddress" class="form-control" placeholder="Để trống sẽ lấy địa chỉ mặc định của tài khoản" />
+        </div>
+        <div class="form-group">
+            <label>Phương thức thanh toán</label>
+            <select name="paymentMethod" class="form-control">
+                <option value="Thanh toán khi nhận hàng (COD)">Thanh toán khi nhận hàng (COD)</option>
+                <option value="Chuyển khoản ngân hàng">Chuyển khoản ngân hàng</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Phương thức giao hàng</label>
+            <select name="shippingMethod" class="form-control">
+                <option value="Giao hàng nhanh">Giao hàng nhanh</option>
+                <option value="Giao hàng tiêu chuẩn">Giao hàng tiêu chuẩn</option>
+            </select>
+        </div>
+        @* Nút Thanh toán - chỉ hiện khi giỏ hàng không rỗng (đã kiểm tra ở trên) *@
+        <button type="submit" class="btn btn-success">Thanh toán</button>
+    }
+}

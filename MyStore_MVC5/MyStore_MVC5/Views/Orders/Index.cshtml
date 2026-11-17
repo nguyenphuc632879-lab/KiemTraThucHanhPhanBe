@@ -1,0 +1,74 @@
+﻿@model MyStore_MVC5.Models.OrderSearchVM
+@using PagedList.Mvc
+@{
+    ViewBag.Title = "Danh sách đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";   // layout Admin
+}
+
+@* Phần tìm kiếm: theo Tên khách hàng, Trạng thái thanh toán, Ngày đặt hàng *@
+@using (Html.BeginForm("Index", "Orders", FormMethod.Get, new { @class = "row", style = "margin-top:20px" }))
+{
+    <div class="col-md-3">
+        <label>Tên khách hàng</label>
+        @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control", placeholder = "Nhập tên khách hàng" })
+    </div>
+    <div class="col-md-3">
+        <label>Trạng thái thanh toán</label>
+        @Html.DropDownList("paymentStatus", (SelectList)ViewBag.PaymentStatuses, "-- Tất cả --", new { @class = "form-control" })
+    </div>
+    <div class="col-md-3">
+        <label>Ngày đặt hàng</label>
+        <input type="date" name="orderDate" class="form-control"
+               value="@(Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("yyyy-MM-dd") : "")" />
+    </div>
+    <div class="col-md-3">
+        <label>&nbsp;</label><br />
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <a href="@Url.Action("Index", "Orders")" class="btn btn-default">Xóa tìm kiếm</a>
+    </div>
+}
+
+<h2 style="background:#dff0d8; margin-top:25px">DANH SÁCH ĐƠN HÀNG</h2>
+
+@if (!Model.Orders.Any())
+{
+    @* Nếu không có đơn hàng nào phù hợp kết quả tìm kiếm thì hiển thị thông báo: KHÔNG CÓ *@
+    <h3 class="text-center text-danger">KHÔNG CÓ</h3>
+}
+else
+{
+    <table class="table table-striped">
+        <tr style="background:#dff0d8">
+            <th>Mã đơn</th>
+            <th>Ngày đặt hàng</th>
+            <th>Tên khách hàng</th>
+            <th>Tổng giá trị</th>
+            <th>Trạng thái thanh toán</th>
+            <th>Trạng thái đơn hàng</th>
+            <th>Phương thức giao hàng</th>
+            <th></th>
+        </tr>
+        @foreach (var o in Model.Orders)
+        {
+            <tr>
+                <td><strong>#@o.OrderID</strong></td>
+                <td>@o.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@o.Customers.FullName</td>
+                <td>@string.Format("{0:N0}", o.TotalAmount) đ</td>
+                <td>@o.PaymentStatus</td>
+                <td>@o.OrderStatus</td>
+                <td>@o.ShippingMethod</td>
+                <td>@Html.ActionLink("Chi tiết đơn hàng", "DetailedOrder", new { id = o.OrderID })</td>
+            </tr>
+        }
+    </table>
+
+    @* Phân trang 15 đơn hàng/trang *@
+    @Html.PagedListPager(Model.Orders, page => Url.Action("Index", new
+    {
+        page,
+        customerName = Model.CustomerName,
+        paymentStatus = Model.PaymentStatus,
+        orderDate = Model.OrderDate.HasValue ? Model.OrderDate.Value.ToString("yyyy-MM-dd") : null
+    }))
+}

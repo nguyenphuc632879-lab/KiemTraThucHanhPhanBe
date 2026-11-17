@@ -1,0 +1,13 @@
+﻿@model MyStore_MVC5.Models.Orders
+@{
+    ViewBag.Title = "Chi tiết đơn hàng #" + Model.OrderID;
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+}
+
+<h3>CHI TIẾT ĐƠN HÀNG #@Model.OrderID</h3>
+
+@Html.Partial("_OrderInvoice", Model)
+
+<p>
+    @Html.ActionLink("Quay lại Đơn hàng của tôi", "MyOrder", "MyOrder", null, new { @class = "btn btn-default" })
+</p>
